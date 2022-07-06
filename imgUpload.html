@@ -1,0 +1,87 @@
+///make form first
+      <form method="post" action="{{ route('store.profile') }}" enctype="multipart/form-data">
+                      @csrf
+                    <div class="row mb-3">
+                        <label for="example-text-input" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" name="name" type="text" value="{{ $editData->name }}">
+                        </div>
+                    </div>
+                     <!-- end row -->
+                     <div class="row mb-3">
+                        <label for="example-text-input" class="col-sm-2 col-form-label">User Name</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" name="username" type="text" value="{{ $editData->name }}">
+                        </div>
+                    </div>
+                     <!-- end row -->
+                     <div class="row mb-3">
+                        <label for="example-text-input" class="col-sm-2 col-form-label">User Name</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" name="email" type="email" value="{{ $editData->email }}">
+                        </div>
+                    </div>
+                     <!-- end row -->
+                     <div class="row mb-3">
+                        <label for="example-text-input" class="col-sm-2 col-form-label">Profile Img</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" name="profile_image" type="file" >
+                        </div>
+                    </div>
+                     <!-- end row -->
+                         <!-- end row -->
+                         <div class="row mb-3">
+                            <div class="col-sm-10">
+                                <label for="example-text-input" class="col-sm-2 col-form-label"></label>
+
+                                <img class="card-img-top img-fluid" src="{{ asset('backend/assets/images/small/img-1.jpg') }}" style="width: 200px" alt="Card image cap">
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Update Profile">
+                         <!-- end row -->
+                </form>
+                
+                
+                
+  ///make route web.php 
+    
+    Route::controller(adminController::class)->group(function(){
+
+                Route::post('/store/profile/img', 'store')->name('store.profile');
+     });
+     
+   ///crate controller most of the file its already created
+   
+      public function store(Request $request){
+        $id = Auth::user()->id;   // make sure Auth imported  use Illuminate\Support\Facades\Auth;
+        $data = User::find($id);   // make User Auth imported  use App\Models\User;
+        $data->name = $request->name;
+        $data->username= $request->username;
+        $data ->email = $request -> email;
+
+        if($request->file('profile_image')){
+            $file = $request ->file('profile_image');
+            $filename = date('YmdHi').$file->getClientOriginalName();
+             $file->move(public_path('upload/admin_image'), $filename);  // create folder under public folder
+             $data['profile_image'] = $filename;
+        }
+        $data -> save();
+        return redirect()->route('admin.profile');
+    }
+             
+             
+             
+            
+            
+            
+    ///show data
+     <div class="card">
+            <img class="card-img-top img-fluid" src="{{ url('upload/admin_image/'.$admindata-> profile_image) }}" alt="Card image cap">
+            <div class="card-body">
+                <h4 class="card-title">Name : {{ $admindata-> name }}</h4><hr>
+                <h4 class="card-title">UserName : {{ $admindata-> username }}</h4><hr>
+                <h4 class="card-title">Email : {{ $admindata-> email }}</h4><hr>
+                <a href="{{ route('edit.profile') }}" class="btn btn-primary waves-effect waves-light">Edit Profile</a>
+            </div>
+        </div>
+  
